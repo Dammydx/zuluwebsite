@@ -14,7 +14,7 @@ export default function HomePage() {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowPopup(true), 3000); // 3 for now i set 3 sec - can be chnaged to 10 seconds
+    const timer = setTimeout(() => setShowPopup(true), 3500); // 3 for now i set 3 sec - can be chnaged to 10 seconds
     return () => clearTimeout(timer);
   }, []);
 
@@ -36,7 +36,7 @@ export default function HomePage() {
         style={{
           backgroundImage: `
             url('/assets/Gradient.png'),
-            url('/assets/Nigerian local market.png')
+            url('/assets/IMG2144.jpg')
           `,
           backgroundSize: 'cover, cover',
           backgroundPosition: 'center, center',
@@ -70,7 +70,7 @@ export default function HomePage() {
             className="mb-8 text-lg text-gray-200"
           >
             Buy and sell locally, anywhere in Nigeria. Zolu brings your market
-            to your phone — secure, fast, and reliable.
+            to your phone, secure, fast, and reliable.
           </motion.p>
 
           <motion.div
