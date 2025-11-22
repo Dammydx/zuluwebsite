@@ -21,7 +21,7 @@ import { ArrowLeft, MapPin, CheckCircle2 } from 'lucide-react';
 
 const totalSteps = 6;
 
-export default function VendorRegistrationPage() {
+export default function BrandRegistrationPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -35,17 +35,18 @@ export default function VendorRegistrationPage() {
     location: '',
     productPreferences: [] as string[],
     receiveUpdates: false,
-    // New fields for Vendor form (Step 6)
-    registrationType: 'market',
-    businessName: '',
-    ownerName: '',
-    businessPhoneNumber: '',
-    businessEmail: '',
-    businessType: '',
-    vendorProductCategories: [] as string[],
-    marketLocation: '',
-    businessLogo: null as File | null,
-    agreeToVendorPolicy: false,
+    // Fields for Brand form (Step 6)
+    brandName: '',
+    industryType: '',
+    companySize: '',
+    contactPerson: '',
+    email: '',
+    brandPhoneNumber: '', // Differentiated from user phone number
+    brandProductCategories: [] as string[],
+    nafdacNumber: '',
+    brandLogo: null as File | null,
+    partnershipInterest: '',
+    agreeToPolicy: false,
   });
 
   const nextStep = () => setStep((prev) => (prev < totalSteps ? prev + 1 : prev));
@@ -71,7 +72,7 @@ export default function VendorRegistrationPage() {
       case 5:
         return <PersonalizeStep formData={formData} setFormData={setFormData} nextStep={nextStep} />;
       case 6:
-        return <VendorFormStep formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} />;
+        return <BrandFormStep formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} />;
       default:
         return null;
     }
@@ -244,7 +245,7 @@ const LocationStep = ({ formData, setFormData, nextStep }: any) => {
     <div className="text-center">
       <h2 className="mb-2 text-3xl font-bold text-gray-900">Where Are You?</h2>
       <p className="mb-8 text-gray-600">
-        This helps us show nearby markets and delivery options
+        This helps us show relevant information for your region.
       </p>
       <div className="rounded-lg bg-gray-50 p-8">
         <MapPin className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
@@ -254,7 +255,7 @@ const LocationStep = ({ formData, setFormData, nextStep }: any) => {
               Use Current Location
             </Button>
             <p className="mt-4 text-sm text-gray-500">
-              Zolu uses your location to show nearby markets. You can change this
+              Zolu uses your location to personalize your experience. You can change this
               anytime.
             </p>
           </>
@@ -333,7 +334,7 @@ const PersonalizeStep = ({ formData, setFormData, nextStep }: any) => {
         <Checkbox
           checked={formData.receiveUpdates}
           onCheckedChange={(checked) =>
-            setFormData({ ...formData, receiveUpdates: checked })
+            setFormData({ ...formData, receiveUpdates: checked as boolean })
           }
         />
         <div className="text-sm">
@@ -352,142 +353,250 @@ const PersonalizeStep = ({ formData, setFormData, nextStep }: any) => {
         </a>
       </p>
       <Button onClick={nextStep} className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700" size="lg">
-        Continue
+        Finish Setup & Register as a Brand
       </Button>
     </div>
   );
 };
 
-// Step 6: Join as a Vendor (Final Form)
-const VendorFormStep = ({ formData, setFormData, handleSubmit }: any) => {
-  const toggleCategory = (category: string) => {
-    const categories = formData.vendorProductCategories.includes(category)
-      ? formData.vendorProductCategories.filter((c: string) => c !== category)
-      : [...formData.vendorProductCategories, category];
-    setFormData({ ...formData, vendorProductCategories: categories });
+// Step 6: Partner with Zolu (Final Form)
+const BrandFormStep = ({ formData, setFormData, handleSubmit }: any) => {
+  const productCategories = [
+    'Grains & Cereals',
+    'Spices & Seasonings',
+    'Processed Foods',
+    'Beverages',
+    'Cooking Oil',
+    'Dairy Products',
+    'Meat & Poultry',
+    'Agricultural Equipment',
+    'Packaging Materials',
+    'Other',
+  ];
+
+  const handleCategoryChange = (category: string) => {
+    setFormData((prev: any) => {
+      const newCategories = prev.brandProductCategories.includes(category)
+        ? prev.brandProductCategories.filter((c: string) => c !== category)
+        : [...prev.brandProductCategories, category];
+      return { ...prev, brandProductCategories: newCategories };
+    });
   };
 
   return (
     <div>
       <div className="mb-8 text-center">
-        <h2 className="mb-2 text-3xl font-bold text-gray-900">Join as a Vendor</h2>
-        <p className="text-gray-600">
-          Grow your business with Zolu&apos;s digital marketplace
+        <h1 className="mb-2 text-3xl font-bold text-gray-900">Brand Registration</h1>
+        <h2 className="text-4xl font-bold text-gray-900">Partner with Zolu</h2>
+        <p className="mt-2 text-gray-600">
+          Connect your brand to Nigeria&apos;s digital marketplace
         </p>
       </div>
-      <Card className="border-0 shadow-lg">
+      <Card className="border-gray-200 shadow-sm">
         <CardContent className="p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label className="mb-3 block">I am registering as:</Label>
-              <div className="grid grid-cols-2 gap-4">
-                <Button
-                  type="button"
-                  variant={formData.registrationType === 'market' ? 'outline' : 'ghost'}
-                  className={`h-auto py-3 text-left ${formData.registrationType === 'market' ? 'border-2 border-emerald-600 bg-emerald-50' : 'border'}`}
-                  onClick={() => setFormData({ ...formData, registrationType: 'market' })}
-                >
-                  <div className="flex flex-col">
-                    <span>Part of a Local Market</span>
-                    <span className="text-xs font-normal text-gray-500">I operate from a physical market</span>
-                  </div>
-                </Button>
-                <Button
-                  type="button"
-                  variant={formData.registrationType === 'independent' ? 'outline' : 'ghost'}
-                  className={`h-auto py-3 text-left ${formData.registrationType === 'independent' ? 'border-2 border-emerald-600 bg-emerald-50' : 'border'}`}
-                  onClick={() => setFormData({ ...formData, registrationType: 'independent' })}
-                >
-                  <div className="flex flex-col">
-                    <span>Independent / Other</span>
-                    <span className="text-xs font-normal text-gray-500">I operate independently</span>
-                  </div>
-                </Button>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Brand Info */}
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="brandName">
+                  Brand Name <span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="brandName"
+                  placeholder="e.g., Golden Penny, Dangote, etc."
+                  value={formData.brandName}
+                  onChange={(e) => setFormData({ ...formData, brandName: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="industryType">
+                    Industry Type <span className="text-red-600">*</span>
+                  </Label>
+                  <Select
+                    value={formData.industryType}
+                    onValueChange={(value) => setFormData({ ...formData, industryType: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select industry" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="food-processing">Food Processing</SelectItem>
+                      <SelectItem value="agriculture">Agriculture</SelectItem>
+                      <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                      <SelectItem value="logistics">Logistics</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="companySize">Company Size</Label>
+                  <Select
+                    value={formData.companySize}
+                    onValueChange={(value) => setFormData({ ...formData, companySize: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1-10">1-10 employees</SelectItem>
+                      <SelectItem value="11-50">11-50 employees</SelectItem>
+                      <SelectItem value="51-200">51-200 employees</SelectItem>
+                      <SelectItem value="201+">201+ employees</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            {/* Contact Info */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-gray-800">Contact Information</h3>
               <div className="space-y-2">
-                <Label htmlFor="businessName">Business Name <span className="text-red-600">*</span></Label>
-                <Input id="businessName" placeholder="e.g., Mama Ngozi's Fresh Foods" value={formData.businessName} onChange={(e) => setFormData({ ...formData, businessName: e.target.value })} required />
+                <Label htmlFor="contactPerson">
+                  Contact Person <span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="contactPerson"
+                  placeholder="Full name"
+                  value={formData.contactPerson}
+                  onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
+                  required
+                />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="ownerName">Owner Name <span className="text-red-600">*</span></Label>
-                <Input id="ownerName" placeholder="Full name" value={formData.ownerName} onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })} required />
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="email">
+                    Email <span className="text-red-600">*</span>
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="contact@brand.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="brandPhoneNumber">Phone Number</Label>
+                  <Input
+                    id="brandPhoneNumber"
+                    type="tel"
+                    placeholder="+234 800 000 0000"
+                    value={formData.brandPhoneNumber}
+                    onChange={(e) => setFormData({ ...formData, brandPhoneNumber: e.target.value })}
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="businessPhoneNumber">Phone Number <span className="text-red-600">*</span></Label>
-                <Input id="businessPhoneNumber" type="tel" placeholder="+234 800 000 0000" value={formData.businessPhoneNumber} onChange={(e) => setFormData({ ...formData, businessPhoneNumber: e.target.value })} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="businessEmail">Business Email</Label>
-                <Input id="businessEmail" type="email" placeholder="business@example.com" value={formData.businessEmail} onChange={(e) => setFormData({ ...formData, businessEmail: e.target.value })} />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="businessType">Business Type</Label>
-              <Select value={formData.businessType} onValueChange={(value) => setFormData({ ...formData, businessType: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select business type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="farmer">Farmer</SelectItem>
-                  <SelectItem value="wholesaler">Wholesaler</SelectItem>
-                  <SelectItem value="retailer">Retailer</SelectItem>
-                  <SelectItem value="processor">Processor</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-3">
+            {/* Product Categories */}
+            <div className="space-y-4">
               <Label>Product Categories (Select all that apply)</Label>
-              <div className="grid gap-3 md:grid-cols-2">
-                {['Grains & Cereals', 'Spices', 'Processed Foods', 'Fresh Produce', 'Livestock Feed', 'Meat & Poultry', 'Dairy Products', 'Other'].map((category) => (
-                  <label key={category} className="flex items-center space-x-3 rounded-lg border p-3 transition-all hover:border-emerald-600">
-                    <Checkbox checked={formData.vendorProductCategories.includes(category)} onCheckedChange={() => toggleCategory(category)} />
-                    <span className="text-sm">{category}</span>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {productCategories.map((category) => (
+                  <label
+                    key={category}
+                    className="flex cursor-pointer items-center space-x-3 rounded-lg border p-3 transition-all hover:border-emerald-600 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50"
+                  >
+                    <Checkbox
+                      id={`category-${category}`}
+                      checked={formData.brandProductCategories.includes(category)}
+                      onCheckedChange={() => handleCategoryChange(category)}
+                    />
+                    <span className="text-sm font-medium text-gray-700">{category}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="marketLocation">Market / Location <span className="text-red-600">*</span></Label>
-              <Input id="marketLocation" placeholder="e.g., Mile 12 Market, Lagos" value={formData.marketLocation} onChange={(e) => setFormData({ ...formData, marketLocation: e.target.value })} required />
-              <p className="text-sm text-gray-500">We&apos;ll use this to connect you with nearby customers</p>
+            {/* Certification and Logo */}
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="nafdacNumber">
+                  NAFDAC / Certification Number (Optional)
+                </Label>
+                <Input
+                  id="nafdacNumber"
+                  placeholder="e.g., NAFDAC-12345678"
+                  value={formData.nafdacNumber}
+                  onChange={(e) => setFormData({ ...formData, nafdacNumber: e.target.value })}
+                />
+                <p className="text-sm text-gray-500">This helps build trust with customers</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="brandLogo">
+                  Upload Brand Logo <span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="brandLogo"
+                  type="file"
+                  accept=".png,.jpg,.jpeg"
+                  onChange={(e) =>
+                    setFormData({ ...formData, brandLogo: e.target.files?.[0] || null })
+                  }
+                  required
+                />
+                <p className="text-sm text-gray-500">
+                  PNG or JPG. Recommended: 1200×1200px. Max 5MB
+                </p>
+              </div>
             </div>
 
+            {/* Partnership Interest */}
             <div className="space-y-2">
-              <Label htmlFor="businessLogo">Upload Business Logo / Image (Optional)</Label>
-              <Input id="businessLogo" type="file" accept=".png,.jpg,.jpeg,.webp" onChange={(e) => setFormData({ ...formData, businessLogo: e.target.files?.[0] || null })} />
-              <p className="text-sm text-gray-500">JPG, PNG or WEBP. Max 5MB. Recommended: 1200×1200px</p>
+              <Label htmlFor="partnershipInterest">Partnership Interest Description</Label>
+              <Textarea
+                id="partnershipInterest"
+                placeholder="Tell us about your goals and how you'd like to partner with Zolu..."
+                value={formData.partnershipInterest}
+                onChange={(e) =>
+                  setFormData({ ...formData, partnershipInterest: e.target.value })
+                }
+                rows={4}
+              />
+              <p className="text-sm text-gray-500">
+                Share your vision for collaboration and what you hope to achieve
+              </p>
             </div>
 
+            {/* Agreement */}
             <label className="flex items-start space-x-3 rounded-lg bg-gray-50 p-4">
-              <Checkbox checked={formData.agreeToVendorPolicy} onCheckedChange={(checked) => setFormData({ ...formData, agreeToVendorPolicy: checked as boolean })} required />
+              <Checkbox
+                id="agreeToPolicy"
+                checked={formData.agreeToPolicy}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, agreeToPolicy: checked as boolean })
+                }
+                required
+              />
               <div className="text-sm">
-                <span className="text-gray-700">
+                <Label htmlFor="agreeToPolicy" className="cursor-pointer text-gray-700">
                   I agree to Zolu&apos;s{' '}
-                  <a href="#" className="text-emerald-600 hover:underline">
-                    Vendor Policy
+                  <a href="#" className="font-semibold text-emerald-600 hover:underline">
+                    Brand Partnership Policy
                   </a>{' '}
-                  and understand that my application will be reviewed before approval
-                </span>
+                  and understand that my application will be reviewed by our partnerships team
+                </Label>
               </div>
             </label>
 
-            <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" size="lg">
-              Submit Application
-            </Button>
-
-            <p className="text-center text-sm text-gray-500">
-              We&apos;ll review your application within 24-48 hours and send you an email with next steps.
-            </p>
+            {/* Submission */}
+            <div className="text-center">
+              <Button
+                type="submit"
+                className="w-full bg-emerald-600 hover:bg-emerald-700"
+                size="lg"
+              >
+                Submit Application
+              </Button>
+              <p className="mt-4 text-sm text-gray-500">
+                Our partnerships team will review your application and reach out within 48-72
+                hours.
+              </p>
+            </div>
           </form>
         </CardContent>
       </Card>
