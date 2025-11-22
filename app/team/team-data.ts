@@ -13,7 +13,7 @@ export const teamData: TeamMember[] = [
     id: '1',
     name: 'Jaja Rich',
     title: 'President & Chief Executive Officer',
-    imageUrl: '/assets/jaja-rich.jpeg',
+    imageUrl: '/assets/jaja-rich.jpg',
     slug: 'jaja-rich',
     bioShort:
       'Jaja Rich is the founder and president/chief executive of Zolu, a rapidly growing conglomerate with an expanding footprint across West Africa.',
