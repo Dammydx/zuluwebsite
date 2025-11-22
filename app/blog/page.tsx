@@ -16,7 +16,7 @@ const blogPosts = [
     author: 'Zolu Editorial Team',
     readTime: '5 min read',
     image:
-      'https://images.pexels.com/photos/2004161/pexels-photo-2004161.jpeg?auto=compress&cs=tinysrgb&w=800',
+      'https://images.unsplash.com/photo-1609780447631-05b93e5a88ea?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   },
   {
     id: 2,

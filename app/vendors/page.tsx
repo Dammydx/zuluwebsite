@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -34,17 +34,17 @@ export default function VendorRegistrationPage() {
     location: '',
     productPreferences: [] as string[],
     receiveUpdates: false,
-    // New fields for Vendor form (Step 6)
+    // Fields for Vendor form (Step 6)
     registrationType: 'market',
     businessName: '',
     ownerName: '',
     businessPhoneNumber: '',
     businessEmail: '',
     businessType: '',
-    vendorProductCategories: [] as string[],
+    categories: [] as string[],
     marketLocation: '',
-    businessLogo: null as File | null,
-    agreeToVendorPolicy: false,
+    logo: null as File | null,
+    agreeToPolicy: false,
   });
 
   const nextStep = () => setStep((prev) => (prev < totalSteps ? prev + 1 : prev));
@@ -82,7 +82,13 @@ export default function VendorRegistrationPage() {
         <div className="mx-auto max-w-4xl items-center px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
-              {step > 1 && (
+              {step === 1 ? (
+                <Link href="/get-started">
+                  <Button variant="ghost" className="pl-0">
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
+                </Link>
+              ) : (
                 <Button variant="ghost" onClick={prevStep} className="pl-0">
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
@@ -345,7 +351,7 @@ const PersonalizeStep = ({ formData, setFormData, nextStep }: any) => {
         </a>
       </p>
       <Button onClick={nextStep} className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700" size="lg">
-        Continue
+        Finish Setup & Register as Vendor
       </Button>
     </div>
   );
@@ -354,10 +360,10 @@ const PersonalizeStep = ({ formData, setFormData, nextStep }: any) => {
 // Step 6: Join as a Vendor (Final Form)
 const VendorFormStep = ({ formData, setFormData, handleSubmit }: any) => {
   const toggleCategory = (category: string) => {
-    const categories = formData.vendorProductCategories.includes(category)
-      ? formData.vendorProductCategories.filter((c: string) => c !== category)
-      : [...formData.vendorProductCategories, category];
-    setFormData({ ...formData, vendorProductCategories: categories });
+    const categories = formData.categories.includes(category)
+      ? formData.categories.filter((c: string) => c !== category)
+      : [...formData.categories, category];
+    setFormData({ ...formData, categories });
   };
 
   return (
@@ -371,68 +377,115 @@ const VendorFormStep = ({ formData, setFormData, handleSubmit }: any) => {
       <Card className="border-0 shadow-lg">
         <CardContent className="p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label className="mb-3 block">I am registering as:</Label>
-              <div className="grid grid-cols-2 gap-4">
-                <Button
+            <div className="space-y-4">
+              <Label>I am registering as:</Label>
+              <div className="grid gap-4 md:grid-cols-2">
+                <button
                   type="button"
-                  variant={formData.registrationType === 'market' ? 'outline' : 'ghost'}
-                  className={`h-auto py-3 text-left ${formData.registrationType === 'market' ? 'border-2 border-emerald-600 bg-emerald-50' : 'border'}`}
-                  onClick={() => setFormData({ ...formData, registrationType: 'market' })}
+                  onClick={() =>
+                    setFormData({ ...formData, registrationType: 'market' })
+                  }
+                  className={`rounded-lg border-2 p-4 text-left transition-all ${
+                    formData.registrationType === 'market'
+                      ? 'border-emerald-600 bg-emerald-50'
+                      : 'border-gray-200'
+                  }`}
                 >
-                  <div className="flex flex-col">
-                    <span>Part of a Local Market</span>
-                    <span className="text-xs font-normal text-gray-500">I operate from a physical market</span>
+                  <div className="font-semibold">Part of a Local Market</div>
+                  <div className="text-sm text-gray-600">
+                    I operate from a physical market
                   </div>
-                </Button>
-                <Button
+                </button>
+                <button
                   type="button"
-                  variant={formData.registrationType === 'independent' ? 'outline' : 'ghost'}
-                  className={`h-auto py-3 text-left ${formData.registrationType === 'independent' ? 'border-2 border-emerald-600 bg-emerald-50' : 'border'}`}
-                  onClick={() => setFormData({ ...formData, registrationType: 'independent' })}
+                  onClick={() =>
+                    setFormData({ ...formData, registrationType: 'independent' })
+                  }
+                  className={`rounded-lg border-2 p-4 text-left transition-all ${
+                    formData.registrationType === 'independent'
+                      ? 'border-emerald-600 bg-emerald-50'
+                      : 'border-gray-200'
+                  }`}
                 >
-                  <div className="flex flex-col">
-                    <span>Independent / Other</span>
-                    <span className="text-xs font-normal text-gray-500">I operate independently</span>
-                  </div>
-                </Button>
+                  <div className="font-semibold">Independent / Other</div>
+                  <div className="text-sm text-gray-600">I operate independently</div>
+                </button>
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="businessName">Business Name <span className="text-red-600">*</span></Label>
-                <Input id="businessName" placeholder="e.g., Mama Ngozi's Fresh Foods" value={formData.businessName} onChange={(e) => setFormData({ ...formData, businessName: e.target.value })} required />
+                <Label htmlFor="businessName">
+                  Business Name <span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="businessName"
+                  placeholder="e.g., Mama Ngozi's Fresh Foods"
+                  value={formData.businessName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, businessName: e.target.value })
+                  }
+                  required
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="ownerName">Owner Name <span className="text-red-600">*</span></Label>
-                <Input id="ownerName" placeholder="Full name" value={formData.ownerName} onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })} required />
+                <Label htmlFor="ownerName">
+                  Owner Name <span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="ownerName"
+                  placeholder="Full name"
+                  value={formData.ownerName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, ownerName: e.target.value })
+                  }
+                  required
+                />
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="businessPhoneNumber">Phone Number <span className="text-red-600">*</span></Label>
-                <Input id="businessPhoneNumber" type="tel" placeholder="+234 800 000 0000" value={formData.businessPhoneNumber} onChange={(e) => setFormData({ ...formData, businessPhoneNumber: e.target.value })} required />
+                <Label htmlFor="phone">
+                  Phone Number <span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+234 800 000 0000"
+                  value={formData.businessPhoneNumber}
+                  onChange={(e) => setFormData({ ...formData, businessPhoneNumber: e.target.value })}
+                  required
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="businessEmail">Business Email</Label>
-                <Input id="businessEmail" type="email" placeholder="business@example.com" value={formData.businessEmail} onChange={(e) => setFormData({ ...formData, businessEmail: e.target.value })} />
+                <Label htmlFor="email">Business Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="business@example.com"
+                  value={formData.businessEmail}
+                  onChange={(e) => setFormData({ ...formData, businessEmail: e.target.value })}
+                />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="businessType">Business Type</Label>
-              <Select value={formData.businessType} onValueChange={(value) => setFormData({ ...formData, businessType: value })}>
+              <Select
+                value={formData.businessType}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, businessType: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select business type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="farmer">Farmer</SelectItem>
-                  <SelectItem value="wholesaler">Wholesaler</SelectItem>
                   <SelectItem value="retailer">Retailer</SelectItem>
-                  <SelectItem value="processor">Processor</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="wholesaler">Wholesaler</SelectItem>
+                  <SelectItem value="producer">Producer/Farmer</SelectItem>
+                  <SelectItem value="processor">Food Processor</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -440,9 +493,24 @@ const VendorFormStep = ({ formData, setFormData, handleSubmit }: any) => {
             <div className="space-y-3">
               <Label>Product Categories (Select all that apply)</Label>
               <div className="grid gap-3 md:grid-cols-2">
-                {['Grains & Cereals', 'Spices', 'Processed Foods', 'Fresh Produce', 'Livestock Feed', 'Meat & Poultry', 'Dairy Products', 'Other'].map((category) => (
-                  <label key={category} className="flex items-center space-x-3 rounded-lg border p-3 transition-all hover:border-emerald-600">
-                    <Checkbox checked={formData.vendorProductCategories.includes(category)} onCheckedChange={() => toggleCategory(category)} />
+                {[
+                  'Grains & Cereals',
+                  'Spices',
+                  'Processed Foods',
+                  'Fresh Produce',
+                  'Livestock Feed',
+                  'Meat & Poultry',
+                  'Dairy Products',
+                  'Other',
+                ].map((category) => (
+                  <label
+                    key={category}
+                    className="flex items-center space-x-3 rounded-lg border p-3 transition-all hover:border-emerald-600"
+                  >
+                    <Checkbox
+                      checked={formData.categories.includes(category)}
+                      onCheckedChange={() => toggleCategory(category)}
+                    />
                     <span className="text-sm">{category}</span>
                   </label>
                 ))}
@@ -450,19 +518,44 @@ const VendorFormStep = ({ formData, setFormData, handleSubmit }: any) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="marketLocation">Market / Location <span className="text-red-600">*</span></Label>
-              <Input id="marketLocation" placeholder="e.g., Mile 12 Market, Lagos" value={formData.marketLocation} onChange={(e) => setFormData({ ...formData, marketLocation: e.target.value })} required />
-              <p className="text-sm text-gray-500">We&apos;ll use this to connect you with nearby customers</p>
+              <Label htmlFor="location">
+                Market / Location <span className="text-red-600">*</span>
+              </Label>
+              <Input
+                id="location"
+                placeholder="e.g., Mile 12 Market, Lagos"
+                value={formData.marketLocation}
+                onChange={(e) => setFormData({ ...formData, marketLocation: e.target.value })}
+                required
+              />
+              <p className="text-sm text-gray-500">
+                We&apos;ll use this to connect you with nearby customers
+              </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="businessLogo">Upload Business Logo / Image (Optional)</Label>
-              <Input id="businessLogo" type="file" accept=".png,.jpg,.jpeg,.webp" onChange={(e) => setFormData({ ...formData, businessLogo: e.target.files?.[0] || null })} />
-              <p className="text-sm text-gray-500">JPG, PNG or WEBP. Max 5MB. Recommended: 1200×1200px</p>
+              <Label htmlFor="logo">Upload Business Logo / Image (Optional)</Label>
+              <Input
+                id="logo"
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp"
+                onChange={(e) =>
+                  setFormData({ ...formData, logo: e.target.files?.[0] || null })
+                }
+              />
+              <p className="text-sm text-gray-500">
+                JPG, PNG or WEBP. Max 5MB. Recommended: 1200×1200px
+              </p>
             </div>
 
             <label className="flex items-start space-x-3 rounded-lg bg-gray-50 p-4">
-              <Checkbox checked={formData.agreeToVendorPolicy} onCheckedChange={(checked) => setFormData({ ...formData, agreeToVendorPolicy: checked as boolean })} required />
+              <Checkbox
+                checked={formData.agreeToPolicy}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, agreeToPolicy: checked as boolean })
+                }
+                required
+              />
               <div className="text-sm">
                 <span className="text-gray-700">
                   I agree to Zolu&apos;s{' '}
@@ -474,12 +567,17 @@ const VendorFormStep = ({ formData, setFormData, handleSubmit }: any) => {
               </div>
             </label>
 
-            <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" size="lg">
+            <Button
+              type="submit"
+              className="w-full bg-emerald-600 hover:bg-emerald-700"
+              size="lg"
+            >
               Submit Application
             </Button>
 
             <p className="text-center text-sm text-gray-500">
-              We&apos;ll review your application within 24-48 hours and send you an email with next steps.
+              We&apos;ll review your application within 24-48 hours and send you an
+              email with next steps.
             </p>
           </form>
         </CardContent>

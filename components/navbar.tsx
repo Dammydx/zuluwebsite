@@ -14,11 +14,13 @@ export function Navbar() {
   const links = [
     { href: '/', label: 'Home' },
     { href: '/about', label: 'About' },
+    { href: '/team', label: 'Team' },
     { href: '/vendors', label: 'Vendors' },
-    { href: '/brands', label: 'Brand Creators' },
+    { href: '/brands', label: 'Brand' },
     { href: '/jobs', label: 'Jobs' },
     { href: '/blog', label: 'Blog' },
     { href: '/contact', label: 'Contact' },
+    { href: '/dashboard', label: 'Dashboard' },
   ];
 
   return (

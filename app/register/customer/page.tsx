@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,16 +54,24 @@ export default function CustomerRegistrationPage() {
   };
 
   if (showWheel) {
-    return <PrizeWheel onComplete={() => router.push('/')} />;
+    return <PrizeWheel onComplete={() => router.push('/dashboard')} />;
   }
 
   return (
     <div className="min-h-screen bg-white">
       <div className="sticky top-0 z-10 border-b bg-white">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
-          <Button variant="ghost" onClick={prevStep} disabled={step === 1}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+          {step === 1 ? (
+            <Link href="/get-started">
+              <Button variant="ghost">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            </Link>
+          ) : (
+            <Button variant="ghost" onClick={prevStep}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          )}
           <div className="text-sm font-medium text-gray-600">
             Step {step} of {totalSteps}
           </div>
@@ -264,7 +273,7 @@ export default function CustomerRegistrationPage() {
                   This helps us show nearby markets and delivery options
                 </p>
               </div>
-
+{/* location removl */}
               <div className="rounded-lg bg-gray-100 p-8">
                 <MapPin className="mx-auto mb-4 h-16 w-16 text-emerald-600" />
                 <Button
