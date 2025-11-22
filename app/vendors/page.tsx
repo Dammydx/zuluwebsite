@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Progress } from '@/components/ui/progress';
+// Removed Progress import to avoid SSR build issues
 import { ArrowLeft, MapPin, CheckCircle2 } from 'lucide-react';
 
 const totalSteps = 6;
@@ -99,7 +99,14 @@ export default function VendorRegistrationPage() {
             </div>
             <div className="w-10"></div>
           </div>
-          <Progress value={(step / totalSteps) * 100} className="mt-2 h-1" />
+
+          {/* Replaced Progress component with a pure CSS/Tailwind progress bar to avoid SSR vendor issues */}
+          <div className="mt-2 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-emerald-600 transition-all"
+              style={{ width: `${(step / totalSteps) * 100}%` }}
+            />
+          </div>
         </div>
       </div>
       <div className="mx-auto max-w-lg px-4 py-12">{renderStep()}</div>
