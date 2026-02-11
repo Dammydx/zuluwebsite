@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Gift, Share2, Copy } from 'lucide-react';
+import { Gift, Share2, Copy, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const prizes = [
   'N500 Credit',
@@ -17,40 +18,116 @@ const prizes = [
   '10% Off',
 ];
 
-export function PrizeWheel({ onComplete }: { onComplete: () => void }) {
+interface Prize {
+  name: string;
+  type: string;
+  value: number;
+  currency?: string;
+}
+
+export function PrizeWheel({ onComplete }: { onComplete: (prize: Prize) => void }) {
+  const { toast } = useToast();
   const [isSpinning, setIsSpinning] = useState(false);
   const [hasSpun, setHasSpun] = useState(false);
-  const [wonPrize, setWonPrize] = useState('');
+  const [wonPrize, setWonPrize] = useState<Prize | null>(null);
   const [rotation, setRotation] = useState(0);
   const [referralCode] = useState(`ZOLU-REF-${Math.floor(Math.random() * 100000)}`);
 
-  const spinWheel = () => {
+  const spinWheel = async () => {
     if (isSpinning || hasSpun) return;
 
     setIsSpinning(true);
-    const randomIndex = Math.floor(Math.random() * prizes.length);
-    const prize = prizes[randomIndex];
-    const degreesPerSection = 360 / prizes.length;
-    const baseDegrees = 360 * 5;
-    const finalRotation = baseDegrees + randomIndex * degreesPerSection;
+    
+    try {
+      // Get userId and token from localStorage
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
+      
+      if (!token || !userStr) {
+        toast({
+          title: 'Error',
+          description: 'Please log in to spin the wheel',
+          variant: 'destructive',
+        });
+        setIsSpinning(false);
+        return;
+      }
 
-    setRotation(finalRotation);
+      const user = JSON.parse(userStr);
+      
+      // Call the backend API
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+      const response = await fetch(`${API_BASE}/auth/customer/prize-wheel/${user.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-    setTimeout(() => {
+      const data = await response.json();
+
+      if (!data.success) {
+        toast({
+          title: 'Error',
+          description: data.error || 'Failed to spin wheel',
+          variant: 'destructive',
+        });
+        setIsSpinning(false);
+        return;
+      }
+
+      // ✅ UPDATE: Save the prize to localStorage immediately
+      const updatedUser = {
+        ...user,
+        hasSpunWheel: true,
+        prizeWon: data.prize
+      };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+
+      // Animate the wheel
+      const randomIndex = Math.floor(Math.random() * prizes.length);
+      const degreesPerSection = 360 / prizes.length;
+      const baseDegrees = 360 * 5;
+      const finalRotation = baseDegrees + randomIndex * degreesPerSection;
+
+      setRotation(finalRotation);
+
+      setTimeout(() => {
+        setIsSpinning(false);
+        setHasSpun(true);
+        setWonPrize(data.prize);
+      }, 4000);
+
+    } catch (error) {
+      console.error('Spin wheel error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to spin wheel. Please try again.',
+        variant: 'destructive',
+      });
       setIsSpinning(false);
-      setHasSpun(true);
-      setWonPrize(prize);
-    }, 4000);
+    }
   };
 
   const copyCode = () => {
     navigator.clipboard.writeText(referralCode);
+    toast({
+      title: 'Copied!',
+      description: 'Referral code copied to clipboard',
+    });
   };
 
-  const wheelSize = 400; // bigger wheel
+  const handleComplete = () => {
+    if (wonPrize) {
+      onComplete(wonPrize);
+    }
+  };
+
+  const wheelSize = 400;
   const center = wheelSize / 2;
-  const segmentRadius = wheelSize / 2 - 50; // radius for placing text inside wedge
-  const circleRadius = wheelSize / 2 - 10; // outer radius of the wheel
+  const segmentRadius = wheelSize / 2 - 50;
+  const circleRadius = wheelSize / 2 - 10;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-white px-4 py-12">
@@ -154,7 +231,14 @@ export function PrizeWheel({ onComplete }: { onComplete: () => void }) {
               disabled={isSpinning}
               className="bg-emerald-600 text-lg hover:bg-emerald-700"
             >
-              {isSpinning ? 'Spinning...' : 'Spin the Wheel'}
+              {isSpinning ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Spinning...
+                </>
+              ) : (
+                'Spin the Wheel'
+              )}
             </Button>
 
             <p className="mt-4 text-sm text-gray-500">
@@ -172,8 +256,18 @@ export function PrizeWheel({ onComplete }: { onComplete: () => void }) {
               Congratulations!
             </h2>
             <p className="mb-2 text-2xl font-semibold text-emerald-600">
-              You won: {wonPrize}
+              You won: {wonPrize?.name}
             </p>
+            {wonPrize?.type === 'discount' && (
+              <p className="text-gray-600">
+                {wonPrize.value}% off your next purchase
+              </p>
+            )}
+            {wonPrize?.type === 'credit' && (
+              <p className="text-gray-600">
+                {wonPrize.currency}{wonPrize.value} credit added to your account
+              </p>
+            )}
 
             <Card className="mx-auto mb-6 mt-8 max-w-md border-2 border-emerald-200">
               <CardContent className="p-6">
@@ -203,7 +297,7 @@ export function PrizeWheel({ onComplete }: { onComplete: () => void }) {
 
             <Button
               size="lg"
-              onClick={onComplete}
+              onClick={handleComplete}
               className="bg-emerald-600 hover:bg-emerald-700"
             >
               Start Shopping
