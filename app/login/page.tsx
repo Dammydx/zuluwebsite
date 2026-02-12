@@ -35,7 +35,8 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+      //const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://zolu-backend-2j77.onrender.com/api/v1';
       const response = await fetch(`${API_BASE}/auth/customer/login`, {
         method: 'POST',
         headers: {

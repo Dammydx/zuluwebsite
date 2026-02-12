@@ -56,7 +56,8 @@ export function PrizeWheel({ onComplete }: { onComplete: (prize: Prize) => void 
       const user = JSON.parse(userStr);
       
       // Call the backend API
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+      //const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://zolu-backend-2j77.onrender.com/api/v1';
       const response = await fetch(`${API_BASE}/auth/customer/prize-wheel/${user.id}`, {
         method: 'POST',
         headers: {
